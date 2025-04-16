@@ -1,8 +1,6 @@
 package com.alterjuice.utils.str
 
 import android.content.Context
-import androidx.annotation.PluralsRes
-import androidx.annotation.StringRes
 
 fun StrRes.get(context: Context): String {
     return when(this) {
@@ -30,6 +28,3 @@ fun StrRes.ArgsHolder.unpackArgs(context: Context) = this.args.map {
     if (it is Str) it.get(context) else it
 }.toTypedArray()
 
-
-operator fun Str.Companion.invoke(@StringRes id: Int, vararg args: Any?) = StrRes.Text(id, *args)
-operator fun Str.Companion.invoke(@PluralsRes id: Int, quantity: Int, vararg args: Any?) = StrRes.Plural(id, quantity, *args)

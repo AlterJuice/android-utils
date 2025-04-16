@@ -9,7 +9,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        minSdk = 24
+        minSdk = 23
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -34,7 +34,7 @@ android {
 }
 
 group = "com.github.AlterJuice"
-version = "v1.0.1"
+version = "v1.0.2"
 
 publishing {
     publications {

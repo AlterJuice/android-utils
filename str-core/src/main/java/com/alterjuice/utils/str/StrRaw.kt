@@ -11,6 +11,11 @@ sealed interface StrRaw : Str {
         internal val str: StrRaw,
         internal val transforms: List<(String) -> String>,
     ) : StrRaw
+
+    companion object {
+        operator fun invoke(block: () -> String) = StrRaw.Lambda(block)
+        operator fun invoke(text: String) = StrRaw.Text(text)
+    }
 }
 
 fun StrRaw.get(): String = when (this) {
@@ -18,7 +23,3 @@ fun StrRaw.get(): String = when (this) {
     is StrRaw.Lambda -> this.block.invoke()
     is StrRaw.Transformable -> str.get().applyTransforms(transforms)
 }
-
-
-operator fun Str.Companion.invoke(block: () -> String) = StrRaw.Lambda(block)
-operator fun Str.Companion.invoke(text: String) = StrRaw.Text(text)

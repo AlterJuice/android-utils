@@ -1,12 +1,20 @@
 package com.alterjuice.utils.str
 
 
+/**
+ * @see StrRaw
+ * @see StrRes
+ * */
 interface Str {
     fun transform(transformBlock: (String) -> String): Str
     fun append(text: String) = this.transform { it + text }
     fun prepend(text: String) = this.transform { text + it }
 
-    companion object;
+    companion object {
+
+        operator fun invoke(block: () -> String) = StrRaw.Lambda(block)
+        operator fun invoke(text: String) = StrRaw.Text(text)
+    }
 }
 
 

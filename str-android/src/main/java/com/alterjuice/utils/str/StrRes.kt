@@ -4,6 +4,10 @@ import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 
 
+/**
+ * @see Str
+ * @see StrRaw
+ * */
 sealed interface StrRes : Str {
 
     override fun transform(transformBlock: (String) -> String): Str = when (this) {
@@ -22,4 +26,9 @@ sealed interface StrRes : Str {
         internal val str: StrRes,
         internal val transforms: List<(String) -> String>
     ) : StrRes
+
+    companion object {
+        operator fun invoke(@StringRes id: Int, vararg args: Any?) = StrRes.Text(id, *args)
+        operator fun invoke(@PluralsRes id: Int, quantity: Int, vararg args: Any?) = StrRes.Plural(id, quantity, *args)
+    }
 }
