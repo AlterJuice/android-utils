@@ -34,7 +34,7 @@ android {
 }
 
 group = "com.github.AlterJuice"
-version = "1.0.2"
+version = "1.0.6"
 
 publishing {
     publications {
@@ -53,7 +53,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
 //    implementation(libs.androidx.appcompat)
 //    implementation(libs.material)
-    implementation(project(":str-core"))
+    api(project(":str-core"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

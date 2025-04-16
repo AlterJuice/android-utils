@@ -40,7 +40,7 @@ android {
 }
 
 group = "com.github.AlterJuice"
-version = "v1.0.0"
+version = "1.0.6"
 
 
 publishing {
