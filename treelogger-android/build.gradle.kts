@@ -33,14 +33,14 @@ android {
     }
 }
 group = "com.github.AlterJuice"
-version = "1.0.6"
+version = "1.0.7"
 
 
 publishing {
     publications {
         create<MavenPublication>("release") {
             afterEvaluate {
-                from(components["release"]) // ✅ Correct component for Android libraries
+                from(components["release"])
             }
             groupId = project.group.toString()
             artifactId = "treelogger-android"
@@ -50,9 +50,6 @@ publishing {
 }
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-//    implementation(libs.androidx.core.ktx)
-//    implementation(libs.androidx.appcompat)
-//    implementation(libs.material)
     implementation(project(":treelogger-core"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

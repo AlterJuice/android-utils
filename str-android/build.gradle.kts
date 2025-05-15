@@ -34,13 +34,13 @@ android {
 }
 
 group = "com.github.AlterJuice"
-version = "1.0.6"
+version = "1.0.7"
 
 publishing {
     publications {
         create<MavenPublication>("release") {
             afterEvaluate {
-                from(components["release"]) // ✅ Correct component for Android libraries
+                from(components["release"])
             }
             groupId = project.group.toString()
             artifactId = "str-android"
@@ -51,8 +51,6 @@ publishing {
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(kotlin("stdlib-jdk8"))
-//    implementation(libs.androidx.appcompat)
-//    implementation(libs.material)
     api(project(":str-core"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
