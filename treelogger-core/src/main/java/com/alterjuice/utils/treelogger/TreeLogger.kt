@@ -4,15 +4,21 @@ package com.alterjuice.utils.treelogger
 object SimpleTreeLogger: TreeLogger(SimpleLogger { level, msg -> println("[${level}]: $msg") })
 
 
-open class TreeLogger(
-    private val sLogger: SimpleLogger = SimpleLogger { level, msg ->
-        println("[${level}]: $msg")
-    },
+open class TreeLogger private constructor(
+    private val sLogger: SimpleLogger, val parentIsEnabled: (() -> Boolean)? = null
 ) : Logger {
-    private var enabled: Boolean = true
+    constructor(
+        logger: SimpleLogger = SimpleLogger { level, msg -> println("[${level}]: $msg") }
+    ) : this(logger, null)
+
+    private var thisIsEnabled: Boolean = true
+
+    fun isEnabled(): Boolean {
+        return thisIsEnabled && (parentIsEnabled?.invoke()?: true)
+    }
 
     override fun log(level: LogLevel, msg: String) {
-        if (!enabled) return
+        if (!isEnabled()) return
         sLogger.log(level, msg)
     }
 
@@ -33,11 +39,11 @@ open class TreeLogger(
 
     // State managing
     fun enable() {
-        enabled = true
+        thisIsEnabled = true
     }
 
     fun disable() {
-        enabled = false
+        thisIsEnabled = false
     }
 
     // Transformations operators
@@ -67,7 +73,7 @@ open class TreeLogger(
     operator fun get(obj: Any) = withTag(obj::class.java.enclosingMethod?.name.toString())
 
     open fun new(singleLogger: SimpleLogger): TreeLogger {
-        return TreeLogger(singleLogger)
+        return TreeLogger(singleLogger, ::isEnabled)
     }
 
     protected fun msgWithExceptionToString(msg: String, thw: Throwable): String {
