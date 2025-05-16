@@ -75,6 +75,12 @@ open class TreeLogger private constructor(
     open fun new(singleLogger: SimpleLogger): TreeLogger {
         return TreeLogger(singleLogger, ::isEnabled)
     }
+    open fun branch(singleLogger: SimpleLogger): TreeLogger {
+        return new { lvl, msg ->
+            this.log(lvl, msg)
+            singleLogger.log(lvl, msg)
+        }
+    }
 
     protected fun msgWithExceptionToString(msg: String, thw: Throwable): String {
         return "$msg\n${thw.stackTraceToString()}"
@@ -84,6 +90,6 @@ open class TreeLogger private constructor(
         return "[${tag}]$msg"
     }
     companion object {
-        val EMPTY get() = TreeLogger(SimpleLogger.EMPTY).isEmpty()
+        val EMPTY get() = TreeLogger(SimpleLogger.EMPTY)
     }
 }
