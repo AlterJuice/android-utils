@@ -5,7 +5,8 @@ object SimpleTreeLogger: TreeLogger(SimpleLogger { level, msg -> println("[${lev
 
 
 open class TreeLogger private constructor(
-    private val sLogger: SimpleLogger, val parentIsEnabled: (() -> Boolean)? = null
+    private val sLogger: SimpleLogger,
+    private val parentIsEnabled: (() -> Boolean)? = null
 ) : Logger {
     constructor(
         logger: SimpleLogger = SimpleLogger { level, msg -> println("[${level}]: $msg") }
@@ -22,20 +23,30 @@ open class TreeLogger private constructor(
         sLogger.log(level, msg)
     }
 
-    override fun log(level: LogLevel, thw: Throwable) =
+    override fun log(level: LogLevel, thw: Throwable) {
+        if (!isEnabled()) return
         log(level, thw.stackTraceToString())
+    }
 
-    override fun log(level: LogLevel, vararg args: Any) =
+    override fun log(level: LogLevel, vararg args: Any) {
+        if (!isEnabled()) return
         log(level, msg = args.joinToString(", ", "[", "]"))
+    }
 
-    override fun log(level: LogLevel, msg: String, thw: Throwable) =
+    override fun log(level: LogLevel, msg: String, thw: Throwable) {
+        if (!isEnabled()) return
         log(level, msg = msgWithExceptionToString(msg, thw))
+    }
 
-    override fun log(level: LogLevel, tag: String, msg: String) =
+    override fun log(level: LogLevel, tag: String, msg: String) {
+        if (!isEnabled()) return
         log(level, msg = msgWithTag(tag, msg))
+    }
 
-    override fun log(level: LogLevel, tag: String, msg: String, thw: Throwable) =
+    override fun log(level: LogLevel, tag: String, msg: String, thw: Throwable) {
+        if (!isEnabled()) return
         log(level, msg = msgWithTag(tag, msgWithExceptionToString(msg, thw)))
+    }
 
     // State managing
     fun enable() {
@@ -82,11 +93,11 @@ open class TreeLogger private constructor(
         }
     }
 
-    protected fun msgWithExceptionToString(msg: String, thw: Throwable): String {
+    protected open fun msgWithExceptionToString(msg: String, thw: Throwable): String {
         return "$msg\n${thw.stackTraceToString()}"
     }
 
-    protected fun msgWithTag(tag: String, msg: String): String {
+    protected open fun msgWithTag(tag: String, msg: String): String {
         return "[${tag}]$msg"
     }
     companion object {
