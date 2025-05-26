@@ -28,7 +28,7 @@ open class TreeLogger protected constructor(
         this.log(level = level, tag = this.tag, msg = thw.message, thw = thw)
     }
 
-    override fun log(level: LogLevel, vararg args: Any) {
+    override fun log(level: LogLevel, vararg args: Any?) {
         if (!isEnabled()) return
         val throwable = args.lastOrNull() as? Throwable
         val messageArgs = if (throwable != null && args.isNotEmpty()) args.sliceArray(0 until args.size - 1) else args
