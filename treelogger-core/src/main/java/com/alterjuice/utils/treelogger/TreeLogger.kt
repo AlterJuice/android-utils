@@ -1,51 +1,53 @@
 package com.alterjuice.utils.treelogger
 
 
-object SimpleTreeLogger: TreeLogger(SimpleLogger { level, msg -> println("[${level}]: $msg") })
-
-
-open class TreeLogger private constructor(
+open class TreeLogger protected constructor(
+    private val tag: String? = null,
     private val sLogger: SimpleLogger,
-    private val parentIsEnabled: (() -> Boolean)? = null
+    private val parentIsEnabled: (() -> Boolean)? = null,
 ) : Logger {
-    constructor(
-        logger: SimpleLogger = SimpleLogger { level, msg -> println("[${level}]: $msg") }
-    ) : this(logger, null)
 
-    private var thisIsEnabled: Boolean = true
+    constructor(
+        tag: String? = null,
+        logger: SimpleLogger = SimpleLoggerImpl,
+    ) : this(tag, logger, null)
+
+    private var thisIsEnabled: Boolean = !this.isEmpty()
 
     fun isEnabled(): Boolean {
         return thisIsEnabled && (parentIsEnabled?.invoke()?: true)
     }
 
-    override fun log(level: LogLevel, msg: String) {
+    override fun log(level: LogLevel, tag: String?, msg: String?, thw: Throwable?) {
         if (!isEnabled()) return
-        sLogger.log(level, msg)
+        sLogger.log(level, tag?: this.tag, msg, thw)
     }
 
     override fun log(level: LogLevel, thw: Throwable) {
         if (!isEnabled()) return
-        log(level, thw.stackTraceToString())
+        this.log(level = level, tag = this.tag, msg = thw.message, thw = thw)
     }
 
     override fun log(level: LogLevel, vararg args: Any) {
         if (!isEnabled()) return
-        log(level, msg = args.joinToString(", ", "[", "]"))
+        val throwable = args.lastOrNull() as? Throwable
+        val messageArgs = if (throwable != null && args.isNotEmpty()) args.sliceArray(0 until args.size - 1) else args
+        val msgString = if (messageArgs.isEmpty() && throwable != null) {
+            throwable.message
+        } else {
+            messageArgs.joinToString(", ", "[", "]")
+        }
+        this.log(level = level, tag = this.tag, msg = msgString, thw = throwable)
     }
 
     override fun log(level: LogLevel, msg: String, thw: Throwable) {
         if (!isEnabled()) return
-        log(level, msg = msgWithExceptionToString(msg, thw))
+        log(level, tag = tag, msg = msg, thw = thw)
     }
 
-    override fun log(level: LogLevel, tag: String, msg: String) {
+    override fun log(level: LogLevel, tag: String?, msg: String) {
         if (!isEnabled()) return
-        log(level, msg = msgWithTag(tag, msg))
-    }
-
-    override fun log(level: LogLevel, tag: String, msg: String, thw: Throwable) {
-        if (!isEnabled()) return
-        log(level, msg = msgWithTag(tag, msgWithExceptionToString(msg, thw)))
+        log(level, tag = tag, msg = msg, thw = null)
     }
 
     // State managing
@@ -58,49 +60,46 @@ open class TreeLogger private constructor(
     }
 
     // Transformations operators
-    fun withTag(tag: String): TreeLogger {
-        return transform(transformText = { level, msg -> msgWithTag(tag, msg) })
-    }
-    fun transformText(
-        transformText: (LogLevel, String) -> String
-    ): TreeLogger {
-        if (isEmpty()) return this
-        return new { level, msg ->
-            this.log(level = level, msg = transformText(level, msg))
-        }
-    }
+    fun withTag(tag: String): TreeLogger = new(tag = tag)
 
-    fun transform(
-        transformLevel: (LogLevel) -> LogLevel = { it },
-        transformText: (LogLevel, String) -> String = { level, msg -> msg },
+    fun intercept(
+        iLevel: (LogLevel) -> LogLevel = { it },
+        iMsg: (String?) -> String? = { it },
+        iThw: (Throwable?) -> Throwable? = { it },
     ): TreeLogger {
         if (isEmpty()) return this
-        return new { level, msg ->
-            this.log(level = transformLevel(level), msg = transformText(level, msg))
-        }
+        return new(
+            simpleLogger = { level, tag, msg, thw ->
+                this.sLogger.log(
+                    level = iLevel(level),
+                    tag = tag,
+                    msg = iMsg(msg),
+                    thw = iThw(thw),
+                )
+            }
+        )
     }
 
     operator fun get(tag: String): TreeLogger = withTag(tag)
     operator fun get(obj: Any) = withTag(obj::class.java.enclosingMethod?.name.toString())
 
-    open fun new(singleLogger: SimpleLogger): TreeLogger {
-        return TreeLogger(singleLogger, ::isEnabled)
-    }
-    open fun branch(singleLogger: SimpleLogger): TreeLogger {
-        return new { lvl, msg ->
-            this.log(lvl, msg)
-            singleLogger.log(lvl, msg)
-        }
+    open fun new(
+        tag: String? = this.tag,
+        simpleLogger: SimpleLogger = sLogger,
+    ): TreeLogger {
+        return TreeLogger(tag, simpleLogger, ::isEnabled)
     }
 
-    protected open fun msgWithExceptionToString(msg: String, thw: Throwable): String {
-        return "$msg\n${thw.stackTraceToString()}"
+    open fun branch(simpleLogger: SimpleLogger): TreeLogger {
+        return new(
+            simpleLogger = { lvl, tag, msg, thw ->
+                sLogger.log(lvl, tag, msg, thw)
+                simpleLogger.log(lvl, tag, msg, thw)
+            }
+        )
     }
 
-    protected open fun msgWithTag(tag: String, msg: String): String {
-        return "[${tag}]$msg"
-    }
     companion object {
-        val EMPTY get() = TreeLogger(SimpleLogger.EMPTY)
+        val EMPTY by lazy { TreeLogger(null, SimpleLogger.EMPTY) }
     }
 }
