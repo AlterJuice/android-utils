@@ -17,4 +17,4 @@ internal object SimpleLoggerImpl: SimpleLogger {
         })
     }
 }
-object SimpleTreeLogger: TreeLogger(null, SimpleLoggerImpl)
+class SimpleTreeLogger(tag: String? = null): TreeLogger(tag, SimpleLoggerImpl)
