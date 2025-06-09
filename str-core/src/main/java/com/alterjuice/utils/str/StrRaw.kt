@@ -1,8 +1,8 @@
 package com.alterjuice.utils.str
 
 sealed interface StrRaw : Str {
-    class Text(val text: String) : StrRaw
-    class Lambda(val block: () -> String) : StrRaw
+    data class Text(val text: String) : StrRaw
+    data class Lambda(val block: () -> String) : StrRaw
     class Transformable internal constructor(
         internal val str: StrRaw,
         internal val transforms: List<(String) -> String>,

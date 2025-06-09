@@ -11,9 +11,13 @@ import androidx.annotation.StringRes
  * */
 sealed interface StrRes : Str {
 
-    class Plural(@PluralsRes val id: Int, val quantity: Int, override vararg val args: Any?) : StrRes, StrResArgsHolder
+    data class Plural(@PluralsRes val id: Int, val quantity: Int, override val args: List<Any?>) : StrRes, StrResArgsHolder {
+        constructor(id: Int, quantity: Int, vararg args: Any?): this(id, quantity, args.toList())
+    }
 
-    class Text(@StringRes val id: Int, override vararg val args: Any?) : StrRes, StrResArgsHolder
+    data class Text(@StringRes val id: Int, override val args: List<Any?>) : StrRes, StrResArgsHolder {
+        constructor(id: Int, vararg args: Any?): this(id, args.toList())
+    }
 
     class Transformable internal constructor(
         internal val str: StrRes,
@@ -39,5 +43,6 @@ sealed interface StrRes : Str {
 
 
 interface StrResArgsHolder {
-    val args: Array<out Any?>
+    val args: List<Any?>
+
 }
