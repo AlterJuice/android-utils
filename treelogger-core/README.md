@@ -19,8 +19,22 @@ The library is modular. The core functionality is in treelogger-core, and Androi
 
 > 💡 Note: Version 1.0.15 is used as an example. Please check the repository's Releases page for the latest available version.
 
-### Step 1: Add the library to your version catalog (libs.versions.toml)
+### Step 1: Add the JitPack repository
+First, add the JitPack repository to your project's settings.gradle.kts file.
+
+```kotlin
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven { url = uri("https://jitpack.io") } // <-- Add this line
+    }
+}
 ```
+
+### Step 2: Add the library to your version catalog (libs.versions.toml)
+```toml
 [versions]
 treelogger = "1.0.15"
 
@@ -29,7 +43,7 @@ alterjuice-treelogger-core = { module = "com.github.AlterJuice.android-utils:tre
 alterjuice-treelogger-android = { module = "com.github.AlterJuice.android-utils:treelogger-android", version.ref = "treelogger" }
 ```
 
-### Step 2: Add the dependency to your module's build.gradle.kts
+### Step 3: Add the dependency to your module's build.gradle.kts
 For pure Kotlin or KMP modules:
 ```gradle
 dependencies {
