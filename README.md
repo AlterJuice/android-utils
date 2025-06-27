@@ -10,6 +10,11 @@ A flexible, hierarchical, and platform-independent logging system. TreeLogger al
 
 ➡️ Detailed Documentation and Usage Examples for TreeLogger  [README.md](treelogger-core/README.md).
 
+> 💡 **For a deep dive into the architecture, design principles, and more examples, check out my detailed article on Medium!**
+> 
+> **➡️ [Medium: Write Cleaner, Smarter Logs: Introducing TreeLogger for Kotlin](https://medium.com/@bohdan.snurnitsyn/write-cleaner-smarter-logs-introducing-treelogger-for-kotlin-794a531ffa30)**
+
+
 ### 📄 Str / StrRaw 
 A utility for more convenient and type-safe work with string resources in Android and Kotlin. It allows you to abstract away from Context and simplifies working with dynamic strings and formatting.
 
